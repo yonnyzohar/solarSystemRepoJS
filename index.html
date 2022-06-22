@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Planets JS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/6.4.2/browser/pixi.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.0/TweenMax.min.js"></script>
+    
+    
+    <script src="src/MathUtils.js"></script>
+    <script src="src/Point.js"></script>
+    <script src="src/AngledBody.js"></script>
+    <script src="src/PlanetUtils.js"></script>
+    <script src="src/Pool.js"></script>
+    <script src="src/Utils.js"></script>
+    
+    <script src="src/Entity.js"></script>
+    <script src="src/Planet.js"></script>
+    <script src="src/Star.js"></script>
+    <script src="src/Model.js"></script>
+    <script src="src/Main.js"></script>
+
+
+   
+
+</head>
+<style>
+    body,
+    html {
+        overflow-x: hidden;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+        
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    canvas {
+        margin: 0 auto 0 auto;
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+    
+
+</style>
+
+<body onload="init()">
+    <script type="text/javascript">
+        //var trace = console.log;
+        var main = null;
+        var renderer = null;
+        var elem = document.body; // Make the body go full screen.
+
+        function init() {
+            var type = "WebGL"
+            if (!PIXI.utils.isWebGLSupported()) {
+                type = "canvas"
+            }
+
+            PIXI.utils.sayHello(type);
+
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+
+            if (w > h) {
+                w = h * 0.5;
+            }
+
+
+            //renderer = PIXI.autoDetectRenderer(w, h);
+            const app = new PIXI.Application({ antialias: true, width :window.innerWidth, height : window.innerHeight });
+            document.body.appendChild(app.view);
+
+            //Add the canvas to the HTML document
+            //document.body.appendChild(renderer.view);
+            //document.body.style.backgroundColor = "black";
+            //renderer.backgroundColor = 0x000000;
+            
+            
+
+            main = new Main(app);//renderer.view
+
+            //renderer.render(main.stage);
+            update();
+            //document.onwebkitfullscreenchange = requestFullScreen;
+            //document.documentElement.onclick = requestFullScreen;
+            //document.onkeydown = requestFullScreen;
+
+        }
+
+        function update() {
+            main.update();
+            //renderer.render(main);
+            requestAnimationFrame(update);
+        }
+        
+        function trace(str)
+        {
+            console.log(str);
+        }
+
+        function getQuad(w, h, hex) {
+            var graphics = new PIXI.Graphics();
+            graphics.beginFill(hex);
+            graphics.drawRect(0, 0, w, h);
+            return graphics
+        }
+
+        function requestFullScreen() {
+            document.onwebkitfullscreenchange = null;
+            document.documentElement.onclick = null;
+            document.onkeydown = null;
+            var element = elem;
+            // Supports most browsers and their versions.
+            var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+
+            if (requestMethod) { // Native full screen.
+                requestMethod.call(element);
+            } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+                var wscript = new ActiveXObject("WScript.Shell");
+                if (wscript !== null) {
+                    wscript.SendKeys("{F11}");
+                }
+            }
+        }
+    </script>
+
+
+</body>
+
+</html>
