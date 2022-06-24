@@ -9,18 +9,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.0/TweenMax.min.js"></script>
     
     
-    <script src="src/MathUtils.js"></script>
-    <script src="src/Point.js"></script>
-    <script src="src/AngledBody.js"></script>
-    <script src="src/PlanetUtils.js"></script>
-    <script src="src/Pool.js"></script>
-    <script src="src/Utils.js"></script>
+    <script>
+        
+        var scripts = ["MathUtils", "Point", "AngledBody", "PlanetUtils", "Pool","Utils", "Smoke", "Entity","Planet","Star", "SpaceShip", "Model", "Main"   ];
+        for(var i = 0; i < scripts.length; i++)
+        {
+            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=" + Date.now() + "'><\/script>");
+        }
+        
+    </script>
     
-    <script src="src/Entity.js"></script>
-    <script src="src/Planet.js"></script>
-    <script src="src/Star.js"></script>
-    <script src="src/Model.js"></script>
-    <script src="src/Main.js"></script>
+    
 
 
    
@@ -91,9 +90,17 @@
             //document.onkeydown = requestFullScreen;
 
         }
+        
+        const perfectFrameTime = 1000 / 60;
+        let deltaTime = 0;
+        let lastTimestamp = 0;
 
         function update() {
-            main.update();
+            const timestamp = Date.now();
+            deltaTime = (timestamp - lastTimestamp) / perfectFrameTime;
+            
+            main.update(deltaTime);
+            lastTimestamp = timestamp;
             //renderer.render(main);
             requestAnimationFrame(update);
         }

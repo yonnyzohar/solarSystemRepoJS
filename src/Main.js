@@ -26,6 +26,7 @@ class Main{
         
         var stage = this.stage;
         var model = this.model;
+        this.start = {};
         
         
         var pool = Pool.getInstance();
@@ -77,8 +78,8 @@ class Main{
 		PlanetUtils.createPartition(model, Model.mapLeft, Model.mapTop);
 
 		//_numElements : int, _CLS:Class, type:String
-		//pool.init(50 * Model.numShips, Smoke, "smoke", function(ent){ent.stop();});
-			/*
+		pool.init(50 * Model.numShips, Smoke, "smoke");
+			
 		//place ships randomly in spots where they dont smash into planets
 		for(var i = 0; i < Model.numShips; i++)
 		{
@@ -90,9 +91,9 @@ class Main{
 				var _y = Math.random() * Model.mapH + Model.mapTop;
 				for(var j = 0; j < model.allPlanets.length; j++)
 				{
-					if(model.allPlanets[j].isPanet)
+					if(model.allPlanets[j].isPlanet)
 					{
-						var p = Planet(model.allPlanets[j]);
+						var p = (model.allPlanets[j]);
 						var rad = p.radius;
 						var d = MathUtils.getDistance(_x, _y, p.x, p.y);
 						if(d > rad + s.radius)
@@ -100,7 +101,7 @@ class Main{
 							s.x =  _x;
 							s.y =  _y;
 							model.allPlanets.push(s);
-							spaceShips.push(s);
+							this.spaceShips.push(s);
 							found = true;
 							break;
 						}
@@ -109,24 +110,111 @@ class Main{
 				}
 			}
 		}
-        */
+        /**/
         
         
         var self = this;
-        window.onmousemove = function(event) {
+        window.onmousemove  = function(event) {
+            event.preventDefault();
+            //trace("onmousemove " , event.clientX, event.clientY);
             stage.mouseX = event.clientX;
             stage.mouseY = event.clientY;
         }
-        window.onmousedown = function(event)
+        window.ontouchmove = function(event) {
+            event.preventDefault();
+            
+            if (event.touches.length === 2) {
+
+                const deltaDistance = self.distance(event);
+                const deltaX = (event.touches[0].pageX + event.touches[1].pageX) / 2; // x2 for accelarated movement
+                const deltaY = (event.touches[0].pageY + event.touches[1].pageY) / 2 ; // x2 for accelarated movement
+                stage.mouseX = deltaX;
+                stage.mouseY = deltaY;
+                trace("move 2 " + 
+                      "x0 " + event.touches[0].pageX + 
+                      " x1 " + event.touches[1].pageX + 
+                      " y0 " +  event.touches[0].pageY + 
+                      " y1 " + event.touches[1].pageY +
+                      " midx " + deltaX + 
+                      " midy " + deltaY
+                    );
+                
+                var dif = Math.abs(deltaDistance - self.prevDist);
+                if(dif > 1)
+                   {
+                       if(deltaDistance > self.prevDist)
+                        {
+                           self.zooom(1);
+                        }
+                        else if(self.prevDist > deltaDistance)
+                        {
+                            self.zooom(-1);   
+                        }
+                   }
+                
+                
+                self.prevDist = deltaDistance;
+            }
+            else
+            {
+                var clientX = event.touches[0].pageX;
+                var clientY = event.touches[0].pageY;
+                
+                trace("move 1 " + clientX + " " + clientY);
+            
+                // trace("ontouchmove " , clientX, clientY);
+                stage.mouseX = clientX;
+                stage.mouseY = clientY;
+            }
+
+            
+            
+        }
+        window.onmousedown =  function(event)
         {
+            event.preventDefault();
+            //trace("onmousedown " , event.clientX, event.clientY);
             stage.mouseX = event.clientX;
             stage.mouseY = event.clientY;
             self.onDown(event)
         }
+         window.ontouchstart = function(event)
+        {
+            event.preventDefault();
+             
+            if (event.touches.length === 2) {
+
+                self.start.x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                self.start.y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                self.start.distance = self.distance(event);
+                
+                trace("ontouchstart 2 " + self.start.x+" "+ self.start.y);
+                
+                stage.mouseX = self.start.x;
+                stage.mouseY = self.start.y;
+                self.prevDist = self.distance(event);
+            }
+            else
+            {
+                var clientX = event.touches[0].pageX;
+                var clientY = event.touches[0].pageY;
+                trace("ontouchstart 1 " + clientX+" "+ clientY);
+                stage.mouseX = clientX;
+                stage.mouseY = clientY;
+                self.onDown(event);
+            }
+        }
         window.onmouseup = function(event)
         {
+            event.preventDefault();
+            //trace("onmouseup " , event.clientX, event.clientY);
             stage.mouseX = event.clientX;
             stage.mouseY = event.clientY;
+            self.onUp(event)
+        }
+        window.ontouchend = function(event)
+        {
+            event.preventDefault();
             self.onUp(event)
         }
         window.addEventListener("wheel", event => {
@@ -134,9 +222,13 @@ class Main{
             stage.mouseX = event.clientX;
             stage.mouseY = event.clientY;
             const delta = (event.deltaY);
-            trace(delta);
+            //trace(delta);
             self.zooom(delta * -1);
         });
+    }
+    
+    distance(event){
+        return Math.hypot(event.touches[0].pageX - event.touches[1].pageX, event.touches[0].pageY - event.touches[1].pageY);
     }
 
 	zooom(delta) {
@@ -268,7 +360,7 @@ class Main{
 	///////////////////////////---- controls -----/////////
 	
 
-	update() {
+	update(dt) {
      
         var pool = Pool.getInstance();
         var model = this.model;
@@ -405,9 +497,12 @@ class Main{
 			
 			
 		}
-
-		//fps.checkFPS(fpsTxt);
+        Utils.update(dt);
+        
+        
 	}
+    
+    
 
 	drawTiles()
 	{

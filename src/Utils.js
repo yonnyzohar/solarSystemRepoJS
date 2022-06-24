@@ -1,4 +1,5 @@
 ﻿var Utils = {
+        _updateables : new WeakMap(),
 		getSpeed:function(isMoon = false) {
 			var speed = (Math.random() * 0.005) + 0.001;
 			if (isMoon) {
@@ -108,7 +109,23 @@
 				w: Math.floor(r - l),
 				h: Math.floor(b - t)
 			};
-		}
+		},
+        update:function(dt)
+        {
+            for(var k in Utils._updateables)
+            {
+                Utils._updateables[k].update(dt)
+            }
+        },
+        addUpdateable:function(name, instance)
+        {
+            Utils._updateables[name] = instance;
+        },
+
+        removeUpdateable:function(name, instance)
+        {
+            delete Utils._updateables[name];
+        }
 	}
 
 //

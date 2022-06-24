@@ -2,6 +2,9 @@
 
     constructor(_stage)
     {
+        //textures
+        this.shipTexture = PIXI.Texture.from('assets/ship.png');
+        
         var mercury;
 		var venus;
 		var earth;
@@ -25,7 +28,7 @@
 		this.offsetY = 0;
 		this.prevX = 0;
 		this.prevY = 0;
-		this.zoomAmount = 0.05;
+		this.zoomAmount = 0.005;
 		this.currZoom = 1;
 		this.mouseDown = false;
         
@@ -190,5 +193,5 @@ Model.mapW;
 Model.mapH ;
 Model.mapLeft;
 Model.mapTop;
-Model.numShips = 10;
+Model.numShips = 15;
 Model.maxDistance = 1000000;
