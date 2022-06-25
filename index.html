@@ -14,15 +14,10 @@
         var scripts = ["MathUtils", "Point", "AngledBody", "PlanetUtils", "Pool","Utils", "Smoke", "Entity","Planet","Star", "SpaceShip", "Model", "Main"   ];
         for(var i = 0; i < scripts.length; i++)
         {
-            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=" + Date.now() + "'><\/script>");
+            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=1'><\/script>");//" + Date.now() + "
         }
         
     </script>
-    
-    
-
-
-   
 
 </head>
 <style>
@@ -74,14 +69,24 @@
             const app = new PIXI.Application({ antialias: true, width :window.innerWidth, height : window.innerHeight });
             document.body.appendChild(app.view);
 
-            //Add the canvas to the HTML document
-            //document.body.appendChild(renderer.view);
-            //document.body.style.backgroundColor = "black";
-            //renderer.backgroundColor = 0x000000;
-            
-            
-
             main = new Main(app);//renderer.view
+            
+            
+            document.addEventListener('keydown', (event) => {
+              const keyName = event.key;
+              if (keyName === 'Control') {
+                main.yonny = true;
+                return;
+              }
+            }, false);
+
+            document.addEventListener('keyup', (event) => {
+              const keyName = event.key;
+                if (keyName === 'Control') {
+                main.yonny = false;
+                return;
+              }
+            }, false);
 
             //renderer.render(main.stage);
             update();
@@ -107,7 +112,7 @@
         
         function trace(str)
         {
-            console.log(str);
+           // console.log(str);
         }
 
         function getQuad(w, h, hex) {

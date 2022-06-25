@@ -15,6 +15,58 @@
         this.rings;
         
     }
+     
+     addMoons() {
+        var numMoons = this.numMoons;
+        var orbitingPlanets = this.orbitingPlanets;
+        var model = this.model;
+        var stage = this.stage;
+        var radius = this.radius;
+        
+		if (numMoons) {
+			if (!orbitingPlanets) {
+				orbitingPlanets = [];
+			}
+			var dist = radius + 20;
+			for (var j = 0; j < numMoons; j++) {
+
+				var moon = new Planet(model, stage);
+				moon.radius = Math.max(radius * (Math.random() - 0.6), radius * 0.3);
+				moon.color = 0xffffff * Math.random();
+				moon.distanceFromParent = dist;
+				moon.angle = Math.random() * (Math.PI * 2);
+				moon.speed = (Model.maxDistance / moon.distanceFromParent) * 0.000001; //speed = Utils.getSpeed(true);
+				moon.name = "moon" + Planet.nextMoonIndex();
+				moon.isMoon = true;
+                moon.addMC();
+
+				dist += (moon.radius * 4);
+
+				orbitingPlanets.push(moon);
+				model.allPlanets.push(moon);
+			}
+            
+            this.orbitingPlanets = orbitingPlanets;
+		}
+
+	}
+     
+     addMC()
+     {
+         var radius = this.radius;
+         var rnd = Math.floor(Math.random() * this.model.planetTextures.length);
+        var tex = this.model.planetTextures[rnd];
+
+        this.mc = new PIXI.Sprite(tex);
+        
+        var hW = this.mc.width / 2;
+        var diff = hW / radius;
+        this.mc.scale.x /= diff;
+        this.mc.scale.y /= diff;
+        
+        this.mc.anchor.set(0.5);
+        this.model.planetLayer.addChild(this.mc);
+     }
 
 
 	
@@ -26,6 +78,10 @@
 		this.angle= _angle;
 		this.name= _name;
 		this.numMoons = _numMoons;
+        
+        this.addMC();
+        
+        
 
 
 		if(_numRings > 0)
@@ -56,6 +112,11 @@
         var orbitingPlanets = this.orbitingPlanets;
         var planetLayerGraphics = model.planetLayer.graphics;
         
+        if(this.mc)
+        {
+          this.mc.rotation-= 0.001;       
+        }
+        
 		if (parentObj) {
 			var cos = Math.cos(angle) * (distanceFromParent + parentObj.radius);
 			var sin = Math.sin(angle) * (distanceFromParent + parentObj.radius);
@@ -64,6 +125,14 @@
 			//trace("pre draw", x,y,angle);
 			this.x = cos;
 			this.y = sin;
+            
+            if(this.mc)
+            {
+               this.mc.x = cos;
+               this.mc.y = sin;
+                
+            }
+            
 	
 
 			//trace("draw", name, x,y, parentObj.x, parentObj.y, angle, parentObj.radius);
@@ -93,10 +162,20 @@
 
 		) {
 			
-			planetLayerGraphics.beginFill(color, 1);
-			planetLayerGraphics.drawCircle(x, y, radius); // Draw the circle, assigning it a x position, y position, raidius.
-			planetLayerGraphics.endFill();
-
+            if(this.mc)
+            {
+                this.mc.visible = true;
+               this.mc.x = x;
+                this.mc.y = y;
+            }
+            /*
+            if(this.isStar)
+            {
+                planetLayerGraphics.beginFill(color, 1);
+			 planetLayerGraphics.drawCircle(x, y, radius); // Draw the circle, assigning it a x position, y position, raidius.
+			 planetLayerGraphics.endFill();
+            }
+            */
 			if (rings) {
 				var thickness = 10;
 				var startDist = radius + (radius * 0.4);
@@ -112,6 +191,13 @@
 				}
 			}
 		}
+        else
+        {
+            if(this.mc)
+            {
+                this.mc.visible = false;
+            }
+        }
 
 
 		var p;
@@ -127,46 +213,14 @@
 		
 	}
 
-	addMoons() {
-        var numMoons = this.numMoons;
-        var orbitingPlanets = this.orbitingPlanets;
-        var model = this.model;
-        var stage = this.stage;
-        var radius = this.radius;
-        
-		if (numMoons) {
-			if (!orbitingPlanets) {
-				orbitingPlanets = [];
-			}
-			var dist = radius + 20;
-			for (var j = 0; j < numMoons; j++) {
-
-				var moon = new Planet(model, stage);
-				moon.radius = Math.max(radius * (Math.random() - 0.6), radius * 0.3);
-				moon.color = 0xffffff * Math.random();
-				moon.distanceFromParent = dist;
-				moon.angle = Math.random() * (Math.PI * 2);
-				moon.speed = (Model.maxDistance / moon.distanceFromParent) * 0.000001; //speed = Utils.getSpeed(true);
-				moon.name = "moon" + Planet.nextMoonIndex();
-				moon.isMoon = true;
-
-				dist += (moon.radius * 4);
-
-				orbitingPlanets.push(moon);
-				model.allPlanets.push(moon);
-			}
-            
-            this.orbitingPlanets = orbitingPlanets;
-		}
-
-	}
+	
 
 }
 Planet.moonIndex = 0;
 
 Planet.nextMoonIndex = function()
-		{
-			Planet.moonIndex++;
-			return Planet.moonIndex;
-		}
+{
+	Planet.moonIndex++;
+	return Planet.moonIndex;
+}
 

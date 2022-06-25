@@ -3,7 +3,7 @@ Open a JavaScript or TypeScript file in VS Code.
 In the VS Code command palette, run the TypeScript: Select TypeScript version command.
 Make sure you have Use VS Code's version selected
 
-
+https://youtu.be/8MgpE2DTTKA?t=974
 */
 
 
@@ -19,10 +19,72 @@ class Main{
         //this.gameHolder
 
         this.model = new Model(this.stage);
+        this.loadTextures();
+        
+        
+        
+        
+        
+
+    }
+    
+    loadTextures()
+    {
+        var model = this.model;
+
+        var self = this;
+        const loader = PIXI.Loader.shared; // PixiJS exposes a premade instance for you to use.
+
+        loader.add('shipTexture', 'assets/ship.png')
+              .add('planet1', 'assets/planet1.png')
+              .add('planet2', 'assets/planet2.png')
+              .add('planet3', 'assets/planet3.png')
+              .add('planet4', 'assets/planet4.png')
+              .add('planet5', 'assets/planet5.png')
+              .add('planet6', 'assets/planet6.png')
+              .add('sun', 'assets/planet7.png')
+              .add('planet8', 'assets/planet8.png')
+              .add('planet9', 'assets/planet9.png')
+              .add('planet10', 'assets/planet10.png')
+              .add('planet11', 'assets/planet11.png')
+              .add('planet12', 'assets/planet12.png')
+              .add('planet13', 'assets/planet13.png')
+              .add('planet14', 'assets/planet14.png')
+              .add('planet15', 'assets/planet15.png');
+
+    
+        loader.load((loader, resources) => {
+            model.shipTexture = resources.shipTexture.texture;
+            model.planetTextures = [
+                resources.planet1.texture,
+                resources.planet2.texture,
+                resources.planet3.texture,
+                resources.planet4.texture,
+                resources.planet5.texture,
+                resources.planet6.texture,
+                resources.planet8.texture,
+                resources.planet9.texture,
+                resources.planet10.texture,
+                resources.planet11.texture,
+                resources.planet12.texture,
+                resources.planet13.texture,
+                resources.planet14.texture,
+                resources.planet15.texture
+            ];
+            model.sunTexture = resources.sun.texture;
+            self.onTexturesLoaded();  
+        });
+
+    }
+           
+    onTexturesLoaded()
+    {
         this.lastPlanet = null;
         this.yonny = true;
         this.spaceShips = [];
         this.mouseCounter =0;
+        this.assetsLoaded = false;
+        this.model.initPlanets();
         
         var stage = this.stage;
         var model = this.model;
@@ -45,9 +107,12 @@ class Main{
         model.moonsTxt = new PIXI.Text('',params);
         stage.addChild(model.moonsTxt );
         model.moonsTxt.y = 50;
-
-		
-		model.lightLayer.mask = model.maskLayer;//light mask is drawn on g0
+        
+        this.assetsLoaded = true;
+        var pool = Pool.getInstance();
+        var stage = this.stage;
+        var model = this.model;
+        model.lightLayer.mask = model.maskLayer;//light mask is drawn on g0
 
 		PlanetUtils.populatePlanetsARrr(model.sun, model, stage);
 
@@ -57,7 +122,7 @@ class Main{
 		}
 		PlanetUtils.populateBGStars(model, stage);
         
-		pool.init(model.allPlanets.length * 50, AngledBody, "angle", function(ent){ent.reset();});
+		pool.init(model.allPlanets.length * 100, AngledBody, "angle", function(ent){ent.reset();});
 		pool.init(100, Point, "point");
 
 		model.sun.draw();
@@ -114,14 +179,101 @@ class Main{
         
         
         var self = this;
+        //mouse events!
+        window.onmousedown =  function(event)
+        {
+            event.preventDefault();
+            //trace("onmousedown " , event.clientX, event.clientY);
+            stage.mouseX = event.clientX;
+            stage.mouseY = event.clientY;
+            self.onDown(event)
+        }
         window.onmousemove  = function(event) {
             event.preventDefault();
             //trace("onmousemove " , event.clientX, event.clientY);
             stage.mouseX = event.clientX;
             stage.mouseY = event.clientY;
         }
+        window.onmouseup = function(event)
+        {
+            event.preventDefault();
+            //trace("onmouseup " , event.clientX, event.clientY);
+            stage.mouseX = event.clientX;
+            stage.mouseY = event.clientY;
+            self.onUp(event)
+        }
+        window.addEventListener("wheel", event => {
+            
+            stage.mouseX = event.clientX;
+            stage.mouseY = event.clientY;
+            const delta = (event.deltaY);
+            //trace(delta);
+            self.zooom(delta * -1);
+        });
+        
+        //touch events
+        this.touchRunning = false;
+        this.touches = [];
+        
+        window.ontouchstart = function(event)
+        {
+            event.preventDefault();
+            
+            if(!self.touchRunning)
+            {
+               self.touches = [];
+               self.touchRunning = true;
+                
+                setTimeout(function(){
+                    self.touchRunning = false;
+                    var gotTwo = false;
+                    var touchEvent;
+                    for(var i = 0; i < self.touches.length; i++)
+                    {
+                        touchEvent = self.touches[i];
+                        if (touchEvent.touches.length === 2) {
+                            gotTwo = true;
+                            break;
+                        }
+                    }
+                    
+                    if (gotTwo) {
+                        self.start.x = (touchEvent.touches[0].pageX + touchEvent.touches[1].pageX) / 2;
+                        self.start.y = (touchEvent.touches[0].pageY + touchEvent.touches[1].pageY) / 2;
+                        self.start.distance = self.distance(touchEvent);
+
+                        trace("ontouchstart 2 " + self.start.x+" "+ self.start.y);
+
+                        stage.mouseX = self.start.x;
+                        stage.mouseY = self.start.y;
+                        self.prevDist = self.distance(touchEvent);
+                    }
+                    else
+                    {
+                        var clientX = touchEvent.touches[0].pageX;
+                        var clientY = touchEvent.touches[0].pageY;
+                        trace("ontouchstart 1 " + clientX+" "+ clientY);
+                        stage.mouseX = clientX;
+                        stage.mouseY = clientY;
+                        self.onDown(touchEvent);
+                    }
+                    
+                    
+                }, 10);
+            }
+            
+            self.touches.push(event);
+             
+            
+        }
+        
         window.ontouchmove = function(event) {
             event.preventDefault();
+            
+            if(self.touchRunning)
+            {
+               return;
+            }
             
             if (event.touches.length === 2) {
 
@@ -130,7 +282,8 @@ class Main{
                 const deltaY = (event.touches[0].pageY + event.touches[1].pageY) / 2 ; // x2 for accelarated movement
                 stage.mouseX = deltaX;
                 stage.mouseY = deltaY;
-                trace("move 2 " + 
+                /*
+                    trace("move 2 " + 
                       "x0 " + event.touches[0].pageX + 
                       " x1 " + event.touches[1].pageX + 
                       " y0 " +  event.touches[0].pageY + 
@@ -138,6 +291,8 @@ class Main{
                       " midx " + deltaX + 
                       " midy " + deltaY
                     );
+                */
+                
                 
                 var dif = Math.abs(deltaDistance - self.prevDist);
                 if(dif > 1)
@@ -170,61 +325,14 @@ class Main{
             
             
         }
-        window.onmousedown =  function(event)
-        {
-            event.preventDefault();
-            //trace("onmousedown " , event.clientX, event.clientY);
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            self.onDown(event)
-        }
-         window.ontouchstart = function(event)
-        {
-            event.preventDefault();
-             
-            if (event.touches.length === 2) {
-
-                self.start.x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-                self.start.y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-                self.start.distance = self.distance(event);
-                
-                trace("ontouchstart 2 " + self.start.x+" "+ self.start.y);
-                
-                stage.mouseX = self.start.x;
-                stage.mouseY = self.start.y;
-                self.prevDist = self.distance(event);
-            }
-            else
-            {
-                var clientX = event.touches[0].pageX;
-                var clientY = event.touches[0].pageY;
-                trace("ontouchstart 1 " + clientX+" "+ clientY);
-                stage.mouseX = clientX;
-                stage.mouseY = clientY;
-                self.onDown(event);
-            }
-        }
-        window.onmouseup = function(event)
-        {
-            event.preventDefault();
-            //trace("onmouseup " , event.clientX, event.clientY);
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            self.onUp(event)
-        }
+        
+        
+        
         window.ontouchend = function(event)
         {
             event.preventDefault();
             self.onUp(event)
-        }
-        window.addEventListener("wheel", event => {
-            
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            const delta = (event.deltaY);
-            //trace(delta);
-            self.zooom(delta * -1);
-        });
+        }      
     }
     
     distance(event){
@@ -260,9 +368,7 @@ class Main{
 			return;
 		}
 
-
 		var i = 0;
-
 
 		for (i = 0; i < model.layers.length; i++) {
 			l = model.layers[i];
@@ -273,7 +379,6 @@ class Main{
 			}
 		}
 
-
 		for (i = 0; i < model.layers.length; i++) {
 			l = model.layers[i];
 
@@ -282,7 +387,6 @@ class Main{
 				l.y = stage.mouseY- (localPosPre.y * model.currZoom);
 			}
 		}
-
 	}
     
     releaseTween()
@@ -302,10 +406,7 @@ class Main{
 		return false;
 	}
 
-		
-
 	onDown(event) {
-
         var model = this.model;
         var stage = this.stage;
 		this.mouseCounter = 0;
@@ -314,8 +415,6 @@ class Main{
 		model.offsetX = (stage.mouseX - l.x) / model.currZoom;
 		model.offsetY = (stage.mouseY - l.y) / model.currZoom;
 		model.mouseDown = true;
-
-		
 	}
 
 	onUp(event) {
@@ -347,29 +446,27 @@ class Main{
 					}
 
 				}
-				
-				//spaceShip.moveTo(p);
-
 				Utils.setFollow(p, true, stage, model);
 			}
 		}
 	}
 
-
-
 	///////////////////////////---- controls -----/////////
-	
-
 	update(dt) {
-     
+        if(!this.assetsLoaded)
+        {
+           return;
+        }
         var pool = Pool.getInstance();
         var model = this.model;
         var stage = this.stage;
+        
+
+        
 		var i = 0;
 		var l;
 		this.mouseCounter++;
 		
-
 		if (model.tweenTo != null) {
 
 			if (model.tweenTo.firstTime) {
@@ -383,14 +480,12 @@ class Main{
 
 						l.x += dX;
 						l.y += dY;
-
 					}
 				}
 
 				if (MathUtils.getDistance(l.x, l.y, model.tweenTo.x, model.tweenTo.y) < 0.5) {
 					Utils.setFollow(model.tweenTo.planet, false, stage, model);
 				}
-
 
 			} else {
 				var fX = 0;
@@ -426,8 +521,6 @@ class Main{
 
 				model.prevX = l.x;
 				model.prevY = l.y;
-
-
 			} else {
 				
 				var l = model.layers[1];
@@ -450,15 +543,12 @@ class Main{
 						}
 					}
 					
-					
 				} else {
 					if (p == null && this.lastPlanet != null) {
 						model.txt.text = "";
 						model.moonsTxt.text = "";
 					}
-
 				}
-
 				this.lastPlanet = p;
 			}
 		}
@@ -466,7 +556,7 @@ class Main{
 		if (this.yonny) 
 		{
 			//trace("");
-			//yonny = false;
+			//this.yonny = false;
 			var model = this.model;
             var stage = this.stage;
             var maskLayerGraphics = model.maskLayer.graphics;
@@ -491,19 +581,11 @@ class Main{
 				s.draw();
 			}
 			model.sun.draw();
-			//stage.removeEventListener(Event.ENTER_FRAME, update);
-			//
-
-			
-			
+            Utils.update(dt);
 		}
-        Utils.update(dt);
-        
         
 	}
     
-    
-
 	drawTiles()
 	{
         var model = this.model;
@@ -519,14 +601,10 @@ class Main{
 				var row = obj.row;
 				var col = obj.col;
 				var color = obj.color;
-				//trace("color", color);
 				model.dg.beginFill(color, 1);
 				model.dg.drawRect((col * Model.tileW) + Model.mapLeft, (row * Model.tileH) + Model.mapTop, Model.tileW , Model.tileH );
 				model.dg.endFill();
 			}
-			
 		}
 	}
-   /* */
 }
-

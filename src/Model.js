@@ -3,19 +3,7 @@
     constructor(_stage)
     {
         //textures
-        this.shipTexture = PIXI.Texture.from('assets/ship.png');
-        
-        var mercury;
-		var venus;
-		var earth;
-		var mars;
-		var jupiter;
-		var saturn;
-		var uranus;
-		var neptune;
-		var sun;
-
-		
+        this.stage = _stage;
 		this.allPlanets= [];
 		this.tweenTo = null;
 		this.layers;
@@ -44,14 +32,24 @@
         this.planetLayer.graphics = new PIXI.Graphics();
         this.planetLayer.addChild(this.planetLayer.graphics);
         
-		
-		///texts
-		//public var txt:TextField;
-		//public var moonsTxt:TextField;
-		//private var stage:Stage;
-
+        
 			this.layers = [ this.starsLayer, this.lightLayer, this.maskLayer, this.planetLayer];
-			var stage = _stage;
+			
+
+    }
+    
+    initPlanets()
+    {
+        var mercury;
+		var venus;
+		var earth;
+		var mars;
+		var jupiter;
+		var saturn;
+		var uranus;
+		var neptune;
+		var sun;
+        var stage = this.stage;
 			
 			var dist = 500;
 
@@ -84,7 +82,7 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	0,//Math.random() * (Math.PI * 2), 
 			/*name*/	"earth",
-			/*numMoons*/5
+			/*numMoons*/3
 			);
 
 			dist += (earth.radius * 10);
@@ -167,8 +165,8 @@
 			);
 			
 			sun.lightRad = 9000;
-			sun.x= _stage.stageWidth / 2;
-			sun.y= _stage.stageHeight / 2;
+			sun.x= stage.stageWidth / 2;
+			sun.y= stage.stageHeight / 2;
 			sun.orbitingPlanets = [];
 
 			sun.orbitingPlanets.push(mercury);
@@ -181,8 +179,7 @@
 			sun.orbitingPlanets.push(neptune); 
         
             this.sun = sun;
-
-		}
+    }
 	
 }
 
@@ -193,5 +190,5 @@ Model.mapW;
 Model.mapH ;
 Model.mapLeft;
 Model.mapTop;
-Model.numShips = 15;
+Model.numShips = 10;
 Model.maxDistance = 1000000;

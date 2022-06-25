@@ -27,6 +27,7 @@ class Smoke
         
             var model = this.model;
             var per = 1 - (this.step / this.numSteps);
+            model.planetLayer.graphics.lineStyle(0.1, 0xffffff, 0.1);
             model.planetLayer.graphics.beginFill(0xffffff, this.alpha * per);
             model.planetLayer.graphics.drawCircle(this.x, this.y, this.radius * per); // Draw the circle, assigning it a x position, y position, raidius.
             model.planetLayer.graphics.endFill();
