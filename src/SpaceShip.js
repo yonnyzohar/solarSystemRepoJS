@@ -18,7 +18,7 @@
     	this.color = 0xffffff * Math.random();
     	this.radius = 15;
     	this.speed = 5;
-    	this.mc = new PIXI.Sprite(this.model.shipTexture);
+    	this.mc = new PIXI.Sprite(this.model.allTextures["ship"].texture);
         
         this.mc.anchor.set(0.5);
        
@@ -129,6 +129,8 @@
 		else{
 			mc.visible = false;
 		}
+        
+        //trace(mc.visible);
 
 
 		if(this.moveObj)
@@ -165,10 +167,11 @@
 
 			var col = Math.floor((x - Model.mapLeft) / Model.tileW);
 			var row = Math.floor((y - Model.mapTop) / Model.tileH);
+            var iter = 5;
 			
-			for(var r = -2; r < 2; r++)
+			for(var r = -iter; r < iter; r++)
 			{
-				for(var c = -2; c < 2; c++)
+				for(var c = -iter; c < iter; c++)
 				{
 					var name = (row+r) + "_" + (col+c);
 					var block = Model.partition[name];
@@ -183,8 +186,10 @@
 							if(block[k].isPlanet)
 							{
 								var p = (block[k]);
+                                
 								if(p != myP)
 								{
+                                    //trace("checking " + p.name + " going to " + myP.name);
 									var rad = p.radius;
 									var d = MathUtils.getDistance(x, y, p.x, p.y);
 									sAngle = MathUtils.getAngle(x, y, p.x, p.y );

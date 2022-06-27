@@ -14,7 +14,7 @@
         var scripts = ["MathUtils", "Point", "AngledBody", "PlanetUtils", "Pool","Utils", "Smoke", "Entity","Planet","Star", "SpaceShip", "Model", "Main"   ];
         for(var i = 0; i < scripts.length; i++)
         {
-            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=1'><\/script>");//" + Date.now() + "
+            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=" + Date.now() + "'><\/script>");//
         }
         
     </script>
@@ -112,7 +112,7 @@
         
         function trace(str)
         {
-           // console.log(str);
+            console.log(str);
         }
 
         function getQuad(w, h, hex) {

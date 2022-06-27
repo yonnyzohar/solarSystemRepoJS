@@ -43,7 +43,6 @@
 		},
 
 		isInScreen:function(p1X, p1Y, layers, _stage) {
-            return true;
 			var l = layers[1];
 			var pool = Pool.getInstance();
 			var point = pool.get("point");

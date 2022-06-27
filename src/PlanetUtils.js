@@ -75,21 +75,20 @@ PlanetUtils.findNearestPlanet = function(model, mx, my)
 
 PlanetUtils.populatePlanetsARrr = function(planet,model, stage)
 {
+       model.allPlanets.push(planet);
+        //console.log("adding " + planet.name + " to allPlanets");
+        if (planet.orbitingPlanets)
+        {
+            for (var i = 0; i < planet.orbitingPlanets.length; i++)
+            {
+                //this will make planets move slower if they are farther away
+                var p = (planet.orbitingPlanets[i]);
+                PlanetUtils.populatePlanetsARrr(p, model, stage);
+            }
+        }
+    
 	
-	model.allPlanets.push(planet);
-	if (planet.orbitingPlanets)
-	{
-		for (var i = 0; i < planet.orbitingPlanets.length; i++)
-		{
-			//this will make planets move slower if they are farther away
-			var p = (planet.orbitingPlanets[i]);
-			
-			//speed: Utils.getSpeed()
-			//distanceFromParent
-
-			PlanetUtils.populatePlanetsARrr(p, model, stage);
-		}
-	}
+	
 }
 
 
@@ -98,7 +97,7 @@ PlanetUtils.populateBGStars = function(model, stage)
     var graphics = model.starsLayer.graphics;
 	graphics.lineStyle(0.1, 0x000000);
 
-	for (var i = 0; i < 100; i++)
+	for (var i = 0; i < 500; i++)
 	{
 		var _x = stage.stageWidth * Math.random();
 		var _y = stage.stageHeight * Math.random();

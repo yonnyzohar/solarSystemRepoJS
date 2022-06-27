@@ -22,16 +22,17 @@
         var model = this.model;
         var stage = this.stage;
         var radius = this.radius;
+        var dist = 0;
         
 		if (numMoons) {
 			if (!orbitingPlanets) {
 				orbitingPlanets = [];
 			}
-			var dist = radius + 20;
+			dist = radius + 20;
 			for (var j = 0; j < numMoons; j++) {
 
 				var moon = new Planet(model, stage);
-				moon.radius = Math.max(radius * (Math.random() - 0.6), radius * 0.3);
+				moon.radius = Math.max(30 * Math.random(), 15);
 				moon.color = 0xffffff * Math.random();
 				moon.distanceFromParent = dist;
 				moon.angle = Math.random() * (Math.PI * 2);
@@ -40,22 +41,37 @@
 				moon.isMoon = true;
                 moon.addMC();
 
-				dist += (moon.radius * 4);
+				dist += (moon.radius * 2);
 
 				orbitingPlanets.push(moon);
-				model.allPlanets.push(moon);
+				//model.allPlanets.push(moon);
 			}
             
             this.orbitingPlanets = orbitingPlanets;
+            
+            
 		}
+         return dist;
 
 	}
      
      addMC()
      {
          var radius = this.radius;
-         var rnd = Math.floor(Math.random() * this.model.planetTextures.length);
-        var tex = this.model.planetTextures[rnd];
+         var tex;
+         if(this.isMoon)
+         {
+            var rnd = Math.floor(Math.random() * 6);
+            console.log("moon" + rnd);
+             tex = this.model.allTextures["moon" + rnd].texture;
+         }
+         else
+         {
+             
+             tex = this.model.allTextures[this.name].texture;
+         }
+         
+         
 
         this.mc = new PIXI.Sprite(tex);
         

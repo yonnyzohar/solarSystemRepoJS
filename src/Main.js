@@ -20,11 +20,6 @@ class Main{
 
         this.model = new Model(this.stage);
         this.loadTextures();
-        
-        
-        
-        
-        
 
     }
     
@@ -33,45 +28,38 @@ class Main{
         var model = this.model;
 
         var self = this;
+        var i = 0;
         const loader = PIXI.Loader.shared; // PixiJS exposes a premade instance for you to use.
-
-        loader.add('shipTexture', 'assets/ship.png')
-              .add('planet1', 'assets/planet1.png')
-              .add('planet2', 'assets/planet2.png')
-              .add('planet3', 'assets/planet3.png')
-              .add('planet4', 'assets/planet4.png')
-              .add('planet5', 'assets/planet5.png')
-              .add('planet6', 'assets/planet6.png')
-              .add('sun', 'assets/planet7.png')
-              .add('planet8', 'assets/planet8.png')
-              .add('planet9', 'assets/planet9.png')
-              .add('planet10', 'assets/planet10.png')
-              .add('planet11', 'assets/planet11.png')
-              .add('planet12', 'assets/planet12.png')
-              .add('planet13', 'assets/planet13.png')
-              .add('planet14', 'assets/planet14.png')
-              .add('planet15', 'assets/planet15.png');
+        var textures = ['ship',    
+                        'mercury', 
+                        'venus',   
+                        'earth',   
+                        'mars',    
+                        'jupiter', 
+                        'saturn',  
+                        'sun',     
+                        'uranus',  
+                        'neptune',
+                        'moon0',
+                        'moon1',   
+                        'moon2',   
+                        'moon3',   
+                        'moon4',   
+                        'moon5'   
+                           ];
+        
+        for( i = 0; i < textures.length; i++)
+        {
+            var name = textures[i];
+            loader.add(name, 'assets/'+name+'.png');
+        }
 
     
         loader.load((loader, resources) => {
-            model.shipTexture = resources.shipTexture.texture;
-            model.planetTextures = [
-                resources.planet1.texture,
-                resources.planet2.texture,
-                resources.planet3.texture,
-                resources.planet4.texture,
-                resources.planet5.texture,
-                resources.planet6.texture,
-                resources.planet8.texture,
-                resources.planet9.texture,
-                resources.planet10.texture,
-                resources.planet11.texture,
-                resources.planet12.texture,
-                resources.planet13.texture,
-                resources.planet14.texture,
-                resources.planet15.texture
-            ];
-            model.sunTexture = resources.sun.texture;
+            
+            model.allTextures = resources;
+
+           
             self.onTexturesLoaded();  
         });
 
@@ -115,17 +103,17 @@ class Main{
         model.lightLayer.mask = model.maskLayer;//light mask is drawn on g0
 
 		PlanetUtils.populatePlanetsARrr(model.sun, model, stage);
-
+        /*
 		for (var i = 0; i < model.allPlanets.length; i++) {
 			var planet = (model.allPlanets[i]);
 			planet.addMoons();
-		}
+		}*/
 		PlanetUtils.populateBGStars(model, stage);
         
 		pool.init(model.allPlanets.length * 100, AngledBody, "angle", function(ent){ent.reset();});
 		pool.init(100, Point, "point");
 
-		model.sun.draw();
+		//model.sun.draw();
 
 		var obj = Utils.getMapSize(model, model.sun);
 		Model.mapW = obj.w;
@@ -135,8 +123,8 @@ class Main{
 
 		//if want to split the map up to 4 X 4
 		var n = 4;
-		Model.tileW = Model.mapW / n;
-		Model.tileH = Model.mapH / n;
+		Model.tileW = Model.mapW / Model.splitFactor;
+		Model.tileH = Model.mapH / Model.splitFactor;
 
 		
 
@@ -165,6 +153,7 @@ class Main{
 						{
 							s.x =  _x;
 							s.y =  _y;
+                            trace("placing ship at " + s.x + " " + s.y);
 							model.allPlanets.push(s);
 							this.spaceShips.push(s);
 							found = true;
@@ -356,8 +345,8 @@ class Main{
 			model.currZoom += model.zoomAmount;
 		} else if (delta < 0) {
 			model.currZoom -= model.zoomAmount;
-			if (model.currZoom <= 0.1) {
-				model.currZoom = 0.1;
+			if (model.currZoom <= model.minZoom) {
+				model.currZoom =model.minZoom;
 				proceed = false;
 			}
 		}
@@ -437,7 +426,7 @@ class Main{
             model.moonsTxt.text = "";
 			var p = PlanetUtils.findNearestPlanet(model, localPos.x, localPos.y);
 			if (p) {
-				model.txt.text = p.name;
+				model.txt.text = p.name.toUpperCase();
 				model.moonsTxt.text = "";
 				if(p.isPlanet)
 				{
@@ -481,6 +470,7 @@ class Main{
 						l.x += dX;
 						l.y += dY;
 					}
+                    
 				}
 
 				if (MathUtils.getDistance(l.x, l.y, model.tweenTo.x, model.tweenTo.y) < 0.5) {
@@ -502,6 +492,7 @@ class Main{
 						l.x = fX;
 						l.y = fY;
 					}
+                    
 				}
 			}
 
@@ -517,6 +508,7 @@ class Main{
 						l.x = newX;
 						l.y = newY;
 					}
+                    
 				}
 
 				model.prevX = l.x;
@@ -573,7 +565,7 @@ class Main{
 			planetLayerGraphics.lineStyle(0.1, 0x000000);
             var spaceShips = this.spaceShips;
 
-			//drawTiles();
+			//this.drawTiles();
 			 
 			for(var i = 0; i < spaceShips.length; i++)
 			{
@@ -590,8 +582,9 @@ class Main{
 	{
         var model = this.model;
         var stage = this.stage;
-		model.dg.clear();
-		model.dg.lineStyle(0.1, 0x000000);
+        var g = model.debugLayer.graphics;
+		g.clear();
+		g.lineStyle(0.1, 0x000000);
 
 		for(var k in Model.partition)
 		{
@@ -601,9 +594,9 @@ class Main{
 				var row = obj.row;
 				var col = obj.col;
 				var color = obj.color;
-				model.dg.beginFill(color, 1);
-				model.dg.drawRect((col * Model.tileW) + Model.mapLeft, (row * Model.tileH) + Model.mapTop, Model.tileW , Model.tileH );
-				model.dg.endFill();
+				g.beginFill(color, 1);
+				g.drawRect((col * Model.tileW) + Model.mapLeft, (row * Model.tileH) + Model.mapTop, Model.tileW , Model.tileH );
+				g.endFill();
 			}
 		}
 	}

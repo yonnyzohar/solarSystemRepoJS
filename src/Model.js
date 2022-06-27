@@ -11,12 +11,14 @@
         this.lightLayer =  new PIXI.Container();
         this.maskLayer = new PIXI.Container();
         this.planetLayer = new PIXI.Container();
+        this.debugLayer = new PIXI.Container();
         
 		this.offsetX = 0;
 		this.offsetY = 0;
 		this.prevX = 0;
 		this.prevY = 0;
-		this.zoomAmount = 0.005;
+		this.zoomAmount = 0.05;
+        this.minZoom = 0.1;
 		this.currZoom = 1;
 		this.mouseDown = false;
         
@@ -32,8 +34,11 @@
         this.planetLayer.graphics = new PIXI.Graphics();
         this.planetLayer.addChild(this.planetLayer.graphics);
         
+        this.debugLayer.graphics = new PIXI.Graphics();
+        this.debugLayer.addChild(this.debugLayer.graphics);
         
-			this.layers = [ this.starsLayer, this.lightLayer, this.maskLayer, this.planetLayer];
+        
+        this.layers = [ this.starsLayer, this.lightLayer, this.maskLayer, this.planetLayer, this.debugLayer];
 			
 
     }
@@ -52,6 +57,7 @@
         var stage = this.stage;
 			
 			var dist = 500;
+            var moonsDist = 0;
 
 			mercury = new Planet(this, stage);
 			mercury.init(
@@ -61,8 +67,11 @@
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"mercury"
 			);
+            
 			
-			dist += (mercury.radius * 10);
+			
+            moonsDist = mercury.addMoons();
+            dist += (mercury.radius + moonsDist + this.gap());
 
 			venus = new Planet(this, stage);
 			venus.init(
@@ -72,8 +81,11 @@
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"venus"
 			);
+            
 			
-			dist += (venus.radius * 10);
+			
+            moonsDist = venus.addMoons();
+            dist += (venus.radius  + moonsDist + this.gap());
 
 			earth = new Planet(this, stage);
 			earth.init(
@@ -82,10 +94,13 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	0,//Math.random() * (Math.PI * 2), 
 			/*name*/	"earth",
-			/*numMoons*/3
+			/*numMoons*/1
 			);
-
-			dist += (earth.radius * 10);
+            
+            
+			
+            moonsDist = earth.addMoons();
+            dist += (earth.radius +  moonsDist + this.gap());
 
 
 			mars = new Planet(this, stage);
@@ -95,10 +110,12 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"mars",
-			/*numMoons*/1
+			/*numMoons*/2
 			);
-
-			dist += (mars.radius * 10);
+            
+			
+            moonsDist = mars.addMoons();
+            dist += (mars.radius  + moonsDist + this.gap());
 			
 
 			jupiter = new Planet(this, stage);
@@ -110,8 +127,10 @@
 			/*name*/	"jupiter",
 			/*numMoons*/5
 			);
-
-			dist += (jupiter.radius * 10);
+            
+			
+            moonsDist = jupiter.addMoons();
+            dist += (jupiter.radius + (moonsDist /2)+ this.gap());
 
 			saturn = new Planet(this, stage);
 			saturn.init(
@@ -120,12 +139,13 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"saturn",
-			/*numMoons*/3,
-			/*numRings*/ 8
+			/*numMoons*/7,
+			/*numRings*/ 5
 			);
-
-			dist += (saturn.radius * 10);
-
+            
+			
+            moonsDist = saturn.addMoons();
+            dist += (saturn.radius + moonsDist + this.gap());
 
 
 			uranus = new Planet(this, stage);
@@ -135,11 +155,12 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"uranus",
-			4
+			3
 			);
-
-			dist += (uranus.radius * 10);
+            
 			
+			moonsDist = uranus.addMoons();
+            dist += (uranus.radius + (moonsDist /2)+ this.gap());
 
 			neptune = new Planet(this, stage);
 			neptune.init(
@@ -148,23 +169,24 @@
 			/*distanceFromParent*/	dist, 
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"neptune",
-			3,
+			4,
 			2
 			);
-
-			dist += (neptune.radius * 10);
+            
 			
+			moonsDist = neptune.addMoons();
+            dist += (neptune.radius + moonsDist + this.gap());
 
 			sun = new Star(this, stage);
 			sun.init(
-			/*radius*/	300, 
+			/*radius*/	500, 
 			/*color*/	0xffff00,
 			/*distanceFromParent*/	10000, 
 			/*angle*/	0, 
 			/*name*/	"sun"
 			);
 			
-			sun.lightRad = 9000;
+			sun.lightRad = dist * 1.5;
 			sun.x= stage.stageWidth / 2;
 			sun.y= stage.stageHeight / 2;
 			sun.orbitingPlanets = [];
@@ -180,8 +202,15 @@
         
             this.sun = sun;
     }
+    
+    gap()
+    {
+        return 500 * Math.random();
+    }
 	
 }
+
+
 
 Model.partition = {};
 Model.tileW;
@@ -191,4 +220,5 @@ Model.mapH ;
 Model.mapLeft;
 Model.mapTop;
 Model.numShips = 10;
+Model.splitFactor = 4;
 Model.maxDistance = 1000000;

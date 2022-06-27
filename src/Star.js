@@ -20,7 +20,7 @@
         addMC()
          {
              var radius = this.radius;
-            var tex = this.model.sunTexture;
+            var tex = this.model.allTextures["sun"].texture;
             this.mc = new PIXI.Sprite(tex);
 
             var hW = this.mc.width / 2;
@@ -67,12 +67,12 @@
 
 			//
 			this.gatherAllPlanetPositions(angles, model.allPlanets, true);
-			trace("angles before manipulations " + angles.length );
+			//trace("angles before manipulations " + angles.length );
 
 			var emptypSpaces = [];
 			//sort the array and fix it to contain the accurate gaps so none are overlapping
 			angles = this.addEntry1(angles, emptypSpaces);
-			trace("angles after manipulations " + angles.length );
+			//trace("angles after manipulations " + angles.length );
 
 			this.sendBeams(angles,  lightLineThickness,  false);
 
@@ -91,13 +91,13 @@
             var x = this.x;
             var y = this.y;
 			var p;
-			trace("gatherAllPlanetPositions " + allPlanets.length );
+			//trace("gatherAllPlanetPositions " + allPlanets.length );
 			for (var j = 0; j < allPlanets.length; j++) {
 				p = (allPlanets[j]);
-				trace("checking " +  p.name);
+				//trace("checking " +  p.name);
 
 				if (p == this) {
-					trace("skipping " +  name);
+					//trace("skipping " +  name);
 					continue;
 				}
 
@@ -106,9 +106,9 @@
 				//get center angle, angle from left side and angle from right side
 				//we need to t figure out if they are blocking planets behind them
 				var centerAngleToSun = MathUtils.fixAngle(MathUtils.getAngle(p.x, p.y, x, y));
-				trace("shit " + x + " " +  y + " " +  p.x + " " +  p.y);
+				//trace("shit " + x + " " +  y + " " +  p.x + " " +  p.y);
 				var distanceToSun = MathUtils.getDistance(x, y, p.x, p.y);
-				trace("distanceToSun " + distanceToSun + " lightRad " + lightRad);
+				//trace("distanceToSun " + distanceToSun + " lightRad " + lightRad);
 				if (distanceToSun < lightRad) {
 					var leftAngle = centerAngleToSun + (Math.PI / 2);
 					var leftPointX = (Math.cos(leftAngle) * p.radius) + p.x;
@@ -131,7 +131,7 @@
 					}
 
 
-					trace(leftAngleToSun + " " +  centerAngleToSun + " " +  rightAngleToSun);
+					//trace(leftAngleToSun + " " +  centerAngleToSun + " " +  rightAngleToSun);
 
 					var obj = pool.get("angle");
 					obj.left =  Math.min(leftAngleToSun, rightAngleToSun);
@@ -140,12 +140,12 @@
 					
 
 					//addEntry(obj, angles)
-					trace("adding angle object");
+					//trace("adding angle object");
 					angles.push(obj);
 				}
 
 				//if (p is Planet && Planet(p).orbitingPlanets) {
-					trace("has moons");
+					//trace("has moons");
 					//gatherAllPlanetPositions(angles, Planet(p).orbitingPlanets, false);
 				//}
 			}
@@ -154,15 +154,18 @@
         findBiggestRight(arr) {
 			var big = 0;
 			var element = null;
-
-			for (var i = arr.length - 1; i >= 0; i--) {
+            if( arr)
+            {
+               for (var i = arr.length - 1; i >= 0; i--) {
 				var g = arr[i];
 
-				if (g.right > big) {
-					element = g;
-					big = g.right;
-				}
-			}
+                    if (g.right > big) {
+                        element = g;
+                        big = g.right;
+                    }
+			     }
+            }
+			
 			return element;
 		}
 
@@ -184,7 +187,7 @@
             var y = this.y;
 			// this fort function sorts the array of planes angles into clusters. each cluster
 			//meaning planets are touching each other
-			trace("addEntry1 " +  arr.length );
+			//trace("addEntry1 " +  arr.length );
             
             arr.sort(function compare(a, b) 
             {
@@ -232,7 +235,7 @@
 				}
 			}
 			
-			trace("before manipulations");
+			//trace("before manipulations");
 			
 			for ( h = 0; h < bigArr.length; h++)
 			{
@@ -240,20 +243,20 @@
 				for (i = 0; i < a.length; i++)
 				{
 					var pp = a[i];
-					trace(h + " debug l " + pp.left + " r " + pp.right +  " d " + pp.dist);
+					//trace(h + " debug l " + pp.left + " r " + pp.right +  " d " + pp.dist);
 				}
 			}/**/
 
-			trace("fixing pverboard");
+			//trace("fixing pverboard");
 			//see if we went overboard
 			//since 360 degress wraps around back to 0 we needs to make sure a planet that goes overboard from the last cluster
 			//does not interfiere with cluster 0
 			var smallestLeft = 0;
-			trace("bigArr " + bigArr.length);
+			//trace("bigArr " + bigArr.length);
 			var lastArr = bigArr[bigArr.length - 1];
 			
 			var lastElement = this.findBiggestRight(lastArr);
-			if (lastElement.right > (Math.PI * 2)) {
+			if (lastElement && lastElement.right > (Math.PI * 2)) {
                 
                 var r = lastElement.right - (Math.PI * 2);
                 obj = pool.get("angle");
@@ -285,12 +288,12 @@
                 bigArr[bigArr.length - 1].push(obj);
                 /*
 				var r = lastElement.right - (Math.PI * 2);
-				trace("lastElement l " + lastElement.left + " r " +  r +  " d " + lastElement.dist);
+				//trace("lastElement l " + lastElement.left + " r " +  r +  " d " + lastElement.dist);
 				for ( i = 0; i < bigArr[0].length; i++) {
 					var element = bigArr[0][i];
-					trace("	element l " + element.left + " r " + element.right+ " d " + element.dist);
+					//trace("	element l " + element.left + " r " + element.right+ " d " + element.dist);
 					if (element != lastElement && element.left > r) {
-						trace("		element left is bigger than last right");
+						//trace("		element left is bigger than last right");
                         obj = pool.get("angle");
 				        obj.left =  0;
 				        obj.right= r;
@@ -300,9 +303,9 @@
 						break;
 					}
 					if (element.right < r) {
-						trace("		element right is smaller than last right");
+						//trace("		element right is smaller than last right");
 						if (element.dist > lastElement.dist){
-							trace("		element is farther");
+							//trace("		element is farther");
 							bigArr[0].splice(i, 1);
 							if (bigArr[0].length == 0) {
 								bigArr.shift();
@@ -311,7 +314,7 @@
 						} else {
 							//element is closer
 							var index = Math.max(i - 1, 0);
-							trace("		element is closer");
+							//trace("		element is closer");
 
 				            obj = pool.get("angle");
 							obj.left =  smallestLeft;
@@ -349,14 +352,14 @@
 				}*/
 
 			}
-			trace("sanity check");
+			//trace("sanity check");
 			for ( h = 0; h < bigArr.length; h++)
 			{
 				var a = bigArr[h];
 				for (i = 0; i < a.length; i++)
 				{
 					var pp = a[i];
-					trace(h + " debug l " + pp.left + " r "+ pp.right +  " d " + pp.dist);
+					//trace(h + " debug l " + pp.left + " r "+ pp.right +  " d " + pp.dist);
 				}
 			}/**/
 
@@ -366,23 +369,23 @@
             var tmp1 = this.handleRecursion(bigArr);
 			var tmp  = this.handleRecursion(tmp1);
 
-			trace("bob");
+			//trace("bob");
 			var res = [];
 			for (var b = 0; b < tmp.length; b++) {
 				var a = tmp[b];
 				for (var i = 0; i < a.length; i++) {
 					var pp = a[i];
 					res.push(pp);
-					trace("l " + pp.left + " r "+ pp.right+ " d "+pp.dist);
+					//trace("l " + pp.left + " r "+ pp.right+ " d "+pp.dist);
 				}
 
 			}
-			trace("--");
+			//trace("--");
 
 			//now do empties
 			var o;
 			for (h = 0; h < tmp.length; h++) {
-				trace("h " + h);
+				//trace("h " + h);
 				var a = tmp[h];
 				if (h == 0) 
 				{
@@ -419,7 +422,7 @@
 				}
 
 				if (h == tmp.length - 1) {
-					trace("added last one!");
+					//trace("added last one!");
 					o.right = Math.PI * 2;
 					empties.push(o);
 				}
@@ -427,14 +430,14 @@
 			}
 
 			
-			trace("output");
+			//trace("output");
 			var res = [];
 			for (var b = 0; b < tmp.length; b++) {
 				var a = tmp[b];
 				for (var i = 0; i < a.length; i++) {
 					var pp = a[i];
 					res.push(pp);
-					trace("l " + pp.left + " r " +  pp.right +  " d " + pp.dist);
+					//trace("l " + pp.left + " r " +  pp.right +  " d " + pp.dist);
 				}
 
 			}
@@ -465,10 +468,10 @@
 
 					//if obj is closer
 					if (obj.dist < currP.dist) {
-						trace("obj "+Utils.printObj(obj)+" is closer than currP "+Utils.printObj(currP));
+						//trace("obj "+Utils.printObj(obj)+" is closer than currP "+Utils.printObj(currP));
 						//if obj ends before curr
 						if (obj.right < currP.right) {
-							trace("	obj "+Utils.printObj(obj)+" right is less than currP right "+Utils.printObj(currP));
+							//trace("	obj "+Utils.printObj(obj)+" right is less than currP right "+Utils.printObj(currP));
 							obj.added = true;
 							var r = obj.right;
 							tmp[h].push(obj);
@@ -477,35 +480,35 @@
 							obj.left =  r;
 							obj.right= currP.right;
 							obj.dist= currP.dist;
-							trace("1 "+Utils.printObj(obj));
+							//trace("1 "+Utils.printObj(obj));
 							
 						}
 						if (obj.right >= currP.right) {
 							//do nothing
 						}
 					} else {
-						trace("obj "+Utils.printObj(obj)+" is farther than currP "+Utils.printObj(currP));
+						//trace("obj "+Utils.printObj(obj)+" is farther than currP "+Utils.printObj(currP));
 						//obj is farther away
 						//end obj at left 
 						if (obj.right < currP.right) {
                             
                             
-                            trace("	obj "+Utils.printObj(obj)+" right is less than currP right "+Utils.printObj(currP));
+                            //trace("	obj "+Utils.printObj(obj)+" right is less than currP right "+Utils.printObj(currP));
                                 //if obj is farther
                             obj.right = currP.left;
                             obj.added = true;
                             tmp[h].push(obj);
                             changesMade = true;
-                            trace("2 "+Utils.printObj(obj));
+                            //trace("2 "+Utils.printObj(obj));
 
                             obj = pool.get("angle");
                             obj.left =  currP.left;
                             obj.right= currP.right;
                             obj.dist= currP.dist;
-                            trace("3 "+Utils.printObj(obj));
+                            //trace("3 "+Utils.printObj(obj));
 							
 						} else if (obj.right >= currP.right) {
-							trace("	obj "+Utils.printObj(obj)+" right is more than currP right "+Utils.printObj(currP));
+							//trace("	obj "+Utils.printObj(obj)+" right is more than currP right "+Utils.printObj(currP));
 							
 							var l = obj.left;
 							var r = obj.right;
@@ -518,7 +521,7 @@
 							obj.right = currP.left;
 							obj.added = true;
 							tmp[h].push(obj);
-							trace("4 "+Utils.printObj(obj));
+							//trace("4 "+Utils.printObj(obj));
 
 							obj = pool.get("angle");
 							obj.left =  currP.left;
@@ -528,13 +531,13 @@
                             changesMade = true;
 							
 							tmp[h].push(obj);
-							trace("5 "+Utils.printObj(obj));
+							//trace("5 "+Utils.printObj(obj));
 
 							obj = pool.get("angle");
 							obj.left =  currP.right;
 							obj.right= orig.right;
 							obj.dist= orig.dist;
-							trace("6 "+Utils.printObj(obj));
+							//trace("6 "+Utils.printObj(obj));
 						}
 					}
 				}
@@ -562,7 +565,7 @@
 			maskLayerGraphics.lineStyle(0, color, 1); //per * 0.6
 
 			//first emit to all the planets
-			trace(angles.length);
+			//trace(angles.length);
 			for (var h = 0; h < angles.length; h++) {
 				a = angles[h];
 				if (a) {
@@ -578,12 +581,12 @@
 					
 
 					if (isEmpty) {
-						trace("empty left " + a.left +  " right " + a.right);
+						//trace("empty left " + a.left +  " right " + a.right);
 
 						var pers = [0.25, 0.5, 0.75];
 						for (var i = 0; i < pers.length; i++) {
 							var midAngle = a.left + ((a.right - a.left) * pers[i]);
-							trace(midAngle);
+							//trace(midAngle);
 							cos = Math.cos(midAngle);
 							sin = Math.sin(midAngle);
 							dpX = x + cos * a.dist; //+ lightLineThickness)
