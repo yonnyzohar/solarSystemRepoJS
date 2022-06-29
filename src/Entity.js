@@ -20,6 +20,10 @@
 		{
 			var col = Math.floor((this.x - Model.mapLeft) / Model.tileW);
 			var row = Math.floor((this.y - Model.mapTop) / Model.tileH);
+            if(isNaN(col))
+               {
+               var a = 1;
+               }
 
 			if(row != this.prevRow || col != this.prevCol)
 			{
@@ -46,5 +50,13 @@
 		}
 
 	}
+Entity.index = 0;
+
+Entity.nextIndex = function()
+{
+	Entity.index++;
+	return Entity.index;
+}
+
 	
 

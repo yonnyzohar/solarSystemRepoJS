@@ -11,10 +11,13 @@
     
     <script>
         
-        var scripts = ["MathUtils", "Point", "AngledBody", "PlanetUtils", "Pool","Utils", "Smoke", "Entity","Planet","Star", "SpaceShip", "Model", "Main"   ];
+        var scripts = [
+                        "MathUtils", "Point", "AngledBody", "PlanetUtils", "Pool","Utils", 
+                        "Smoke", "Entity","Planet","Star", "SpaceShip", "Model", "Main", "Controls", "Person" 
+                      ];
         for(var i = 0; i < scripts.length; i++)
         {
-            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=" + Date.now() + "'><\/script>");//
+            document.write("<script type='text/javascript' src='src/" + scripts[i] +".js?v=1'><\/script>");//" + Date.now() + "
         }
         
     </script>
@@ -90,6 +93,22 @@
 
             //renderer.render(main.stage);
             update();
+            window.onresize = function()
+            {
+                
+                var w = window.innerWidth;
+                var h = window.innerHeight;
+                
+                //this part resizes the canvas but keeps ratio the same
+                app.view.style.width = w + "px";
+                app.view.style.height = h + "px";
+
+                //this part adjusts the ratio:
+                app.resize(w,h);
+                
+                app.stage.stageWidth = app.screen.width;
+                app.stage.stageHeight = app.screen.height;
+            };
             //document.onwebkitfullscreenchange = requestFullScreen;
             //document.documentElement.onclick = requestFullScreen;
             //document.onkeydown = requestFullScreen;
@@ -109,6 +128,9 @@
             //renderer.render(main);
             requestAnimationFrame(update);
         }
+
+
+
         
         function trace(str)
         {

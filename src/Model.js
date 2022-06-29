@@ -4,7 +4,7 @@
     {
         //textures
         this.stage = _stage;
-		this.allPlanets= [];
+		this.allEntities= [];
 		this.tweenTo = null;
 		this.layers;
 		this.starsLayer =  new PIXI.Container();
@@ -140,7 +140,7 @@
 			/*angle*/	Math.random() * (Math.PI * 2), 
 			/*name*/	"saturn",
 			/*numMoons*/7,
-			/*numRings*/ 5
+			/*numRings*/ 10
 			);
             
 			
@@ -205,7 +205,7 @@
     
     gap()
     {
-        return 500 * Math.random();
+        return (500 * Math.random()) + 300;
     }
 	
 }

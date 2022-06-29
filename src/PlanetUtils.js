@@ -1,28 +1,6 @@
 ﻿var PlanetUtils = {};
 
 	
-PlanetUtils.createPartition = function(model, left, top)
-{	
-	Model.partition = {};
-	/*
-	for (var i:int = 0; i < model.allPlanets.length; i++) {
-		//if(model.allPlanets[i] is Planet)
-		{
-			var planet: Entity = Entity(model.allPlanets[i]);
-			var col:int = (planet.x - left )  / Model.tileW;// ;
-			var row:int = (planet.y - top)  / Model.tileH;// ;
-
-			var name:String = String(row) + "_" + String(col);
-			if(!Model.partition[name])
-			{
-				Model.partition[name] = {color : 0xffffff * Math.random(), row : row, col:col, numPlanets:0};
-			}
-			Model.partition[name][planet.name] = planet;
-			Model.partition[name].numPlanets++;
-		}
-	}
-	*/
-}
 
 PlanetUtils.findNearestPlanet = function(model, mx, my)
 {
@@ -75,8 +53,8 @@ PlanetUtils.findNearestPlanet = function(model, mx, my)
 
 PlanetUtils.populatePlanetsARrr = function(planet,model, stage)
 {
-       model.allPlanets.push(planet);
-        //console.log("adding " + planet.name + " to allPlanets");
+       model.allEntities.push(planet);
+        //console.log("adding " + planet.name + " to allEntities");
         if (planet.orbitingPlanets)
         {
             for (var i = 0; i < planet.orbitingPlanets.length; i++)

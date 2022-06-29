@@ -5,7 +5,7 @@
 	constructor(_model, _stage)
     {
         super(_model, _stage);
-     
+        this.tourists = [];
         this.distanceFromParent;
         this.orbitingPlanets ;
         this.showOrbit = false;
@@ -13,6 +13,8 @@
         this.isMoon = false;
         this.isPlanet = true;
         this.rings;
+        this.rotationSpeed = 0.001; 
+        this.rotation = 0;
         
     }
      
@@ -32,19 +34,18 @@
 			for (var j = 0; j < numMoons; j++) {
 
 				var moon = new Planet(model, stage);
-				moon.radius = Math.max(30 * Math.random(), 15);
+				moon.radius = Math.min((30 * Math.random() + 15), 25);
 				moon.color = 0xffffff * Math.random();
 				moon.distanceFromParent = dist;
 				moon.angle = Math.random() * (Math.PI * 2);
 				moon.speed = (Model.maxDistance / moon.distanceFromParent) * 0.000001; //speed = Utils.getSpeed(true);
-				moon.name = "moon" + Planet.nextMoonIndex();
+				moon.name = "moon" + Entity.nextIndex();
 				moon.isMoon = true;
                 moon.addMC();
 
 				dist += (moon.radius * 2);
 
 				orbitingPlanets.push(moon);
-				//model.allPlanets.push(moon);
 			}
             
             this.orbitingPlanets = orbitingPlanets;
@@ -63,12 +64,12 @@
          {
             var rnd = Math.floor(Math.random() * 6);
             console.log("moon" + rnd);
-             tex = this.model.allTextures["moon" + rnd].texture;
+             tex = this.model.allTextures["moon" + rnd];
          }
          else
          {
              
-             tex = this.model.allTextures[this.name].texture;
+             tex = this.model.allTextures[this.name];
          }
          
          
@@ -127,10 +128,10 @@
         var rings = this.rings;
         var orbitingPlanets = this.orbitingPlanets;
         var planetLayerGraphics = model.planetLayer.graphics;
-        
+        this.rotation -= this.rotationSpeed;  
         if(this.mc)
         {
-          this.mc.rotation-= 0.001;       
+          this.mc.rotation = this.rotation;
         }
         
 		if (parentObj) {
@@ -231,12 +232,5 @@
 
 	
 
-}
-Planet.moonIndex = 0;
-
-Planet.nextMoonIndex = function()
-{
-	Planet.moonIndex++;
-	return Planet.moonIndex;
 }
 

@@ -31,23 +31,20 @@ class Main{
         var i = 0;
         const loader = PIXI.Loader.shared; // PixiJS exposes a premade instance for you to use.
         var textures = ['ship',    
-                        'mercury', 
-                        'venus',   
-                        'earth',   
-                        'mars',    
-                        'jupiter', 
-                        'saturn',  
-                        'sun',     
-                        'uranus',  
-                        'neptune',
-                        'moon0',
-                        'moon1',   
-                        'moon2',   
-                        'moon3',   
-                        'moon4',   
-                        'moon5'   
-                           ];
+                        'mercury','venus', 'earth','mars','jupiter', 'saturn','sun',     
+                        'uranus', 'neptune','moon0','moon1', 'moon2', 'moon3','moon4','moon5',
+                        'alien1','alien2','alien3','alien4','alien5','alien6','alien7','alien8','alien0',
+                        'alien9','alien10','alien11','alien12','alien13','alien14'
+                        ];
         
+        loader.add('assets/ta.json').load(function () {
+            model.allTextures = loader.resources['assets/ta.json'].textures;
+            self.onTexturesLoaded();  
+            
+            
+        });
+
+        /*
         for( i = 0; i < textures.length; i++)
         {
             var name = textures[i];
@@ -57,11 +54,12 @@ class Main{
     
         loader.load((loader, resources) => {
             
-            model.allTextures = resources;
+             resources;
 
            
-            self.onTexturesLoaded();  
+            
         });
+        */
 
     }
            
@@ -70,13 +68,12 @@ class Main{
         this.lastPlanet = null;
         this.yonny = true;
         this.spaceShips = [];
-        this.mouseCounter =0;
-        this.assetsLoaded = false;
+        
         this.model.initPlanets();
         
         var stage = this.stage;
         var model = this.model;
-        this.start = {};
+        
         
         
         var pool = Pool.getInstance();
@@ -96,7 +93,7 @@ class Main{
         stage.addChild(model.moonsTxt );
         model.moonsTxt.y = 50;
         
-        this.assetsLoaded = true;
+        
         var pool = Pool.getInstance();
         var stage = this.stage;
         var model = this.model;
@@ -104,18 +101,16 @@ class Main{
 
 		PlanetUtils.populatePlanetsARrr(model.sun, model, stage);
         /*
-		for (var i = 0; i < model.allPlanets.length; i++) {
-			var planet = (model.allPlanets[i]);
+		for (var i = 0; i < model.allEntities.length; i++) {
+			var planet = (model.allEntities[i]);
 			planet.addMoons();
 		}*/
 		PlanetUtils.populateBGStars(model, stage);
         
-		pool.init(model.allPlanets.length * 100, AngledBody, "angle", function(ent){ent.reset();});
+		pool.init(model.allEntities.length * 100, AngledBody, "angle", function(ent){ent.reset();});
 		pool.init(100, Point, "point");
-
-		//model.sun.draw();
-
-		var obj = Utils.getMapSize(model, model.sun);
+        
+        var obj = Utils.getMapSize(model, model.sun);
 		Model.mapW = obj.w;
 		Model.mapH = obj.h;
 		Model.mapLeft = obj.left;
@@ -126,207 +121,84 @@ class Main{
 		Model.tileW = Model.mapW / Model.splitFactor;
 		Model.tileH = Model.mapH / Model.splitFactor;
 
+		model.sun.draw();
+
 		
-
-		PlanetUtils.createPartition(model, Model.mapLeft, Model.mapTop);
-
 		//_numElements : int, _CLS:Class, type:String
 		pool.init(50 * Model.numShips, Smoke, "smoke");
+        this.spawnSpaceShips();
 			
-		//place ships randomly in spots where they dont smash into planets
+        new Controls(stage, model, this);
+        this.assetsLoaded = true;
+        
+        
+    }
+    
+    spawnSpaceShips()
+    {
+        var model = this.model;
+        var stage = this.stage;
+        //place ships randomly in spots where they dont smash into planets
 		for(var i = 0; i < Model.numShips; i++)
 		{
 			var s = new SpaceShip(model, stage);
 			var found = false;
 			while(!found)
 			{
+                var colliding = false;
 				var _x = Math.random() * Model.mapW + Model.mapLeft;
 				var _y = Math.random() * Model.mapH + Model.mapTop;
-				for(var j = 0; j < model.allPlanets.length; j++)
-				{
-					if(model.allPlanets[j].isPlanet)
-					{
-						var p = (model.allPlanets[j]);
-						var rad = p.radius;
-						var d = MathUtils.getDistance(_x, _y, p.x, p.y);
-						if(d > rad + s.radius)
-						{
-							s.x =  _x;
-							s.y =  _y;
-                            trace("placing ship at " + s.x + " " + s.y);
-							model.allPlanets.push(s);
-							this.spaceShips.push(s);
-							found = true;
-							break;
-						}
-
-					}
-				}
+                
+                var col = Math.floor((_x - Model.mapLeft) / Model.tileW);
+			    var row = Math.floor((_y - Model.mapTop) / Model.tileH);
+                var iter = 5;
+                var numChecks = 0;
+			
+                for(var r = -iter; r < iter; r++)
+                {
+                    for(var c = -iter; c < iter; c++)
+                    {
+                        var name = (row+r) + "_" + (col+c);
+                        var block = Model.partition[name];
+                        if(block)
+                        {
+                            for(var k in block)
+                            {
+                                if(block[k].isPlanet)
+                                {
+                                    var p = block[k];
+                                    var rad = p.radius;
+                                    var d = MathUtils.getDistance(_x, _y, p.x, p.y);
+                                    numChecks++;
+                                    if(d < rad + s.radius)
+                                    {
+                                        colliding = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        trace("not colliding with " + p.name);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if(!colliding)
+                {
+                    s.x =  _x;
+                    s.y =  _y;
+                    trace("placing ship at " + s.x + " " + s.y + " after " + numChecks + " checks");
+				    model.allEntities.push(s);
+				    this.spaceShips.push(s);
+				    found = true;
+                }
+ 
 			}
 		}
-        /**/
-        
-        
-        var self = this;
-        //mouse events!
-        window.onmousedown =  function(event)
-        {
-            event.preventDefault();
-            //trace("onmousedown " , event.clientX, event.clientY);
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            self.onDown(event)
-        }
-        window.onmousemove  = function(event) {
-            event.preventDefault();
-            //trace("onmousemove " , event.clientX, event.clientY);
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-        }
-        window.onmouseup = function(event)
-        {
-            event.preventDefault();
-            //trace("onmouseup " , event.clientX, event.clientY);
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            self.onUp(event)
-        }
-        window.addEventListener("wheel", event => {
-            
-            stage.mouseX = event.clientX;
-            stage.mouseY = event.clientY;
-            const delta = (event.deltaY);
-            //trace(delta);
-            self.zooom(delta * -1);
-        });
-        
-        //touch events
-        this.touchRunning = false;
-        this.touches = [];
-        
-        window.ontouchstart = function(event)
-        {
-            event.preventDefault();
-            
-            if(!self.touchRunning)
-            {
-               self.touches = [];
-               self.touchRunning = true;
-                
-                setTimeout(function(){
-                    self.touchRunning = false;
-                    var gotTwo = false;
-                    var touchEvent;
-                    for(var i = 0; i < self.touches.length; i++)
-                    {
-                        touchEvent = self.touches[i];
-                        if (touchEvent.touches.length === 2) {
-                            gotTwo = true;
-                            break;
-                        }
-                    }
-                    
-                    if (gotTwo) {
-                        self.start.x = (touchEvent.touches[0].pageX + touchEvent.touches[1].pageX) / 2;
-                        self.start.y = (touchEvent.touches[0].pageY + touchEvent.touches[1].pageY) / 2;
-                        self.start.distance = self.distance(touchEvent);
-
-                        trace("ontouchstart 2 " + self.start.x+" "+ self.start.y);
-
-                        stage.mouseX = self.start.x;
-                        stage.mouseY = self.start.y;
-                        self.prevDist = self.distance(touchEvent);
-                    }
-                    else
-                    {
-                        var clientX = touchEvent.touches[0].pageX;
-                        var clientY = touchEvent.touches[0].pageY;
-                        trace("ontouchstart 1 " + clientX+" "+ clientY);
-                        stage.mouseX = clientX;
-                        stage.mouseY = clientY;
-                        self.onDown(touchEvent);
-                    }
-                    
-                    
-                }, 10);
-            }
-            
-            self.touches.push(event);
-             
-            
-        }
-        
-        window.ontouchmove = function(event) {
-            event.preventDefault();
-            
-            if(self.touchRunning)
-            {
-               return;
-            }
-            
-            if (event.touches.length === 2) {
-
-                const deltaDistance = self.distance(event);
-                const deltaX = (event.touches[0].pageX + event.touches[1].pageX) / 2; // x2 for accelarated movement
-                const deltaY = (event.touches[0].pageY + event.touches[1].pageY) / 2 ; // x2 for accelarated movement
-                stage.mouseX = deltaX;
-                stage.mouseY = deltaY;
-                /*
-                    trace("move 2 " + 
-                      "x0 " + event.touches[0].pageX + 
-                      " x1 " + event.touches[1].pageX + 
-                      " y0 " +  event.touches[0].pageY + 
-                      " y1 " + event.touches[1].pageY +
-                      " midx " + deltaX + 
-                      " midy " + deltaY
-                    );
-                */
-                
-                
-                var dif = Math.abs(deltaDistance - self.prevDist);
-                if(dif > 1)
-                   {
-                       if(deltaDistance > self.prevDist)
-                        {
-                           self.zooom(1);
-                        }
-                        else if(self.prevDist > deltaDistance)
-                        {
-                            self.zooom(-1);   
-                        }
-                   }
-                
-                
-                self.prevDist = deltaDistance;
-            }
-            else
-            {
-                var clientX = event.touches[0].pageX;
-                var clientY = event.touches[0].pageY;
-                
-                trace("move 1 " + clientX + " " + clientY);
-            
-                // trace("ontouchmove " , clientX, clientY);
-                stage.mouseX = clientX;
-                stage.mouseY = clientY;
-            }
-
-            
-            
-        }
-        
-        
-        
-        window.ontouchend = function(event)
-        {
-            event.preventDefault();
-            self.onUp(event)
-        }      
     }
     
-    distance(event){
-        return Math.hypot(event.touches[0].pageX - event.touches[1].pageX, event.touches[0].pageY - event.touches[1].pageY);
-    }
+    
 
 	zooom(delta) {
         var pool = Pool.getInstance();

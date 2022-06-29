@@ -5,8 +5,15 @@
     {
         super(_model, _stage);
         
+        this.passengers = [];
+        var rnd = Math.floor(Math.random() * 4);
+        for(var i = 0; i < rnd; i++)
+        {
+           this.passengers.push(new Person(_model, _stage)) ;
+        }
         
         
+        //
         this.attachedPlanet;
         this.moveObj;
         this.distanceFromParent;
@@ -18,10 +25,15 @@
     	this.color = 0xffffff * Math.random();
     	this.radius = 15;
     	this.speed = 5;
-    	this.mc = new PIXI.Sprite(this.model.allTextures["ship"].texture);
+    	this.mc = new PIXI.Sprite(this.model.allTextures["ship"]);
         
         this.mc.anchor.set(0.5);
        
+        var hW = this.mc.width / 2;
+        var diff = hW / 15;
+        this.mc.scale.x /= diff;
+        this.mc.scale.y /= diff;
+        
         this.setMcPos(this.x, this.y);
     	
     	this.model.planetLayer.addChild(this.mc);
@@ -57,10 +69,10 @@
 			var found = false;
 			while(!found)
 			{
-				var rnd = Math.floor(Math.random() * model.allPlanets.length);
-				if(model.allPlanets[rnd].isPlanet)
+				var rnd = Math.floor(Math.random() * model.allEntities.length);
+                var p = (model.allEntities[rnd]); 
+				if(p.isPlanet && !p.isStar)
 				{
-					var p = (model.allPlanets[rnd]);
 					if(this.currPlanet != p)
 					{
 						if(!p.isMoon)
@@ -78,6 +90,23 @@
 
 	moveTo(p)
 	{
+        //before leaving, pick up a passenger
+        if(this.currPlanet)
+        {
+            
+            if(Math.random() <= 0.5)
+            {
+                var tourists = this.currPlanet.tourists;
+                if(tourists.length)
+                {
+                   var t = tourists[0];
+                   t.detachFromPlanet(this);
+                   this.passengers.push(t);
+                }
+            }
+        }
+        
+        
 		//trace("going to " + p.name);
 		this.smokeCounter = 0;
 		var w = p.x - this.x;
@@ -131,8 +160,9 @@
 		}
         
         //trace(mc.visible);
-
-
+        var nextX = x;
+        var nextY = y;
+        
 		if(this.moveObj)
 		{
 			this.smokeCounter++;
@@ -143,11 +173,22 @@
 			var orbit = (myP.radius  + (myP.radius * 0.5));
 			if(distance <= orbit )
 			{
+                //i am in orbit
 				this.moveObj = null;
 				//this.mc.fireMC.visible = false;
 				this.angle = MathUtils.getAngle( x, y,myP.x, myP.y);
 				this.distanceFromParent = orbit;
 				this.currPlanet = myP;	
+                
+                //when arriving at a planet, drop a passenger
+                if(Math.random() <= 0.7)
+                {
+                    var passenger = this.passengers.pop();
+                    if(passenger)
+                    {
+                       passenger.attachToPlanet(this, myP);
+                    }    
+                }
 				this.findTarget();
 				return;
 			}
@@ -155,8 +196,8 @@
 			this.moveObj.vx = w / distance;
 			this.moveObj.vy = h / distance;
 
-			var nextX = x + this.moveObj.vx * speed;
-			var nextY = y + this.moveObj.vy * speed;
+			nextX = x + this.moveObj.vx * speed;
+			nextY = y + this.moveObj.vy * speed;
 
 			var fX = 0;
 			var fY = 0;
@@ -221,6 +262,11 @@
 			nextY -= fY;
 
 			sAngle = MathUtils.getAngle(nextX, nextY, x, y);
+            
+            if(isNaN(nextX) || isNaN(nextY))
+            {
+                var as = 1
+            }
 
 			this.y = nextY;
 			this.x = nextX;
@@ -244,6 +290,7 @@
 			cos += this.currPlanet.x;
 			sin += this.currPlanet.y;
 			//trace("pre draw", x,y,angle);
+
 			this.x = cos;
 			this.y = sin;
             this.setMcPos(this.x, this.y);

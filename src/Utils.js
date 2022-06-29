@@ -73,8 +73,8 @@
 			var top = 1000000000;
 			var btm = -1000000000;
 
-			for (var i = 0; i < model.allPlanets.length; i++) {
-				var e = model.allPlanets[i];
+			for (var i = 0; i < model.allEntities.length; i++) {
+				var e = model.allEntities[i];
 				//trace(e.x);
 				if (e.x < left) {
 					left = e.x;

@@ -20,7 +20,7 @@
         addMC()
          {
              var radius = this.radius;
-            var tex = this.model.allTextures["sun"].texture;
+            var tex = this.model.allTextures["sun"];
             this.mc = new PIXI.Sprite(tex);
 
             var hW = this.mc.width / 2;
@@ -66,7 +66,7 @@
 			var angles =[];
 
 			//
-			this.gatherAllPlanetPositions(angles, model.allPlanets, true);
+			this.gatherAllPlanetPositions(angles, model.allEntities, true);
 			//trace("angles before manipulations " + angles.length );
 
 			var emptypSpaces = [];
@@ -81,7 +81,7 @@
 			this.sendBeams(emptypSpaces, lightLineThickness, true)
 		}
 
-		gatherAllPlanetPositions(angles, allPlanets , topHeirarchy = false) {
+		gatherAllPlanetPositions(angles, allEntities , topHeirarchy = false) {
             var pool = Pool.getInstance();
             var model = this.model;
             var stage = this.stage;
@@ -91,9 +91,9 @@
             var x = this.x;
             var y = this.y;
 			var p;
-			//trace("gatherAllPlanetPositions " + allPlanets.length );
-			for (var j = 0; j < allPlanets.length; j++) {
-				p = (allPlanets[j]);
+			//trace("gatherAllPlanetPositions " + allEntities.length );
+			for (var j = 0; j < allEntities.length; j++) {
+				p = allEntities[j];
 				//trace("checking " +  p.name);
 
 				if (p == this) {
